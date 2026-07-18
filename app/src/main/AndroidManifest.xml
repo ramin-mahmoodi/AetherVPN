@@ -28,8 +28,14 @@
         <activity
             android:name=".SplitTunnelActivity"
             android:exported="false"
-            android:theme="@style/Theme.Aether"
-            android:label="Split Tunneling" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Aether" />
+
+        <activity
+            android:name=".LogActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Aether" />
 
         <activity
             android:name=".SettingsActivity"

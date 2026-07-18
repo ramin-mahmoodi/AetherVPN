@@ -31,6 +31,18 @@
             android:textStyle="bold" />
 
         <ImageView
+            android:id="@+id/btnLogs"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:padding="6dp"
+            android:tint="@color/text_main"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:layout_marginEnd="8dp" />
+
+        <ImageView
             android:id="@+id/btnSettings"
             android:layout_width="40dp"
             android:layout_height="40dp"
@@ -188,38 +200,6 @@
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <!-- Log Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="vertical"
-        android:background="@color/surface_dark"
-        android:padding="12dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LOGS"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
-
-        <ScrollView
-            android:id="@+id/logScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TextView
-                android:id="@+id/logText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#99FFFFFF"
-                android:textSize="11sp"
-                android:fontFamily="monospace"
-                android:lineSpacingExtra="2dp" />
-        </ScrollView>
     </LinearLayout>
 
 </LinearLayout>

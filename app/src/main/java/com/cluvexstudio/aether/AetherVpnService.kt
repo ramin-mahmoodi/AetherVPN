@@ -51,6 +51,16 @@ class AetherVpnService : VpnService() {
         currentStatus = status
         val intent = Intent(ACTION_STATUS).putExtra("status", status)
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        
+        // Update notification
+        if (isRunning) {
+            val sharedPrefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
+            if (sharedPrefs.getBoolean("show_notification", true)) {
+                val title = if (status == STATUS_CONNECTED) "Connected" else "Connecting..."
+                val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                manager.notify(NOTIFICATION_ID, createNotification(title))
+            }
+        }
     }
 
     private fun broadcastLog(msg: String) {
@@ -65,6 +75,11 @@ class AetherVpnService : VpnService() {
             if (READY_SIGNALS.any { msg.contains(it, ignoreCase = true) }) {
                 broadcastStatus(STATUS_CONNECTED)
             }
+        }
+
+        // Downgrade to connecting if SOCKS proxy fails (e.g. Warp in Warp drops)
+        if (msg.contains("general SOCKS server failure", ignoreCase = true) && currentStatus == STATUS_CONNECTED) {
+            broadcastStatus(STATUS_CONNECTING)
         }
     }
 
@@ -85,7 +100,7 @@ class AetherVpnService : VpnService() {
         val sharedPrefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
         val showNotification = sharedPrefs.getBoolean("show_notification", true)
         if (showNotification) {
-            startForeground(NOTIFICATION_ID, createNotification())
+            startForeground(NOTIFICATION_ID, createNotification("Connecting..."))
         }
 
         isRunning = true
@@ -112,7 +127,7 @@ class AetherVpnService : VpnService() {
         }
     }
 
-    private fun createNotification(): android.app.Notification {
+    private fun createNotification(statusText: String): android.app.Notification {
         val openAppIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -129,7 +144,7 @@ class AetherVpnService : VpnService() {
 
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Aether VPN")
-            .setContentText("Connecting...")
+            .setContentText(statusText)
             .setSmallIcon(android.R.drawable.ic_secure)
             .setContentIntent(openAppPendingIntent)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)

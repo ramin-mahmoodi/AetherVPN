@@ -34,12 +34,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textDownload: TextView
     private lateinit var textUpload: TextView
     private lateinit var textPing: TextView
-    private lateinit var logText: TextView
-    private lateinit var logScrollView: ScrollView
 
-    companion object { const val VPN_REQUEST_CODE = 1001 }
+    companion object { 
+        const val VPN_REQUEST_CODE = 1001 
+        val logBuffer = java.lang.StringBuilder()
+    }
 
-    private val logBuffer = StringBuilder()
     private var isLogUpdateScheduled = false
 
     private val dataHandler = Handler(Looper.getMainLooper())
@@ -53,14 +53,6 @@ class MainActivity : AppCompatActivity() {
             val line = intent?.getStringExtra("logLine") ?: return
             if (logBuffer.length > 50000) logBuffer.delete(0, logBuffer.length - 25000)
             logBuffer.append(line).append("\n")
-            if (!isLogUpdateScheduled) {
-                isLogUpdateScheduled = true
-                logText.postDelayed({
-                    logText.text = logBuffer.toString()
-                    logScrollView.post { logScrollView.fullScroll(View.FOCUS_DOWN) }
-                    isLogUpdateScheduled = false
-                }, 500)
-            }
         }
     }
 
@@ -89,13 +81,15 @@ class MainActivity : AppCompatActivity() {
         textDownload        = findViewById(R.id.textDownload)
         textUpload          = findViewById(R.id.textUpload)
         textPing            = findViewById(R.id.textPing)
-        logText             = findViewById(R.id.logText)
-        logScrollView       = findViewById(R.id.logScrollView)
 
         connectButtonLayout.setOnClickListener { toggleConnection() }
 
         findViewById<ImageView>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        
+        findViewById<ImageView>(R.id.btnLogs)?.setOnClickListener {
+            startActivity(Intent(this, LogActivity::class.java))
         }
 
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).apply {

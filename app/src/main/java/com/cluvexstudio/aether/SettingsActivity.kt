@@ -85,11 +85,15 @@ class SettingsActivity : AppCompatActivity() {
         // Animate thumbs after layout
         radioGroupScanMode.post { updateThumbs() }
 
+        var isInitializing = true
+        spinnerProtocol.post { isInitializing = false }
+
         // Listeners
         spinnerProtocol.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                if (isInitializing) return
                 val proto = when (pos) { 1 -> "masque"; 2 -> "wireguard"; 3 -> "gool"; else -> "auto" }
-                prefs.edit().putString("protocol", proto).apply()
+                prefs.edit().putString("protocol", proto).commit()
             }
             override fun onNothingSelected(p: AdapterView<*>?) {}
         }
@@ -100,28 +104,28 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.radioBalanced -> "balanced"; R.id.radioThorough -> "thorough"
                 R.id.radioStealth  -> "stealth";  else -> "turbo"
             }
-            prefs.edit().putString("scan_mode", mode).apply()
+            prefs.edit().putString("scan_mode", mode).commit()
         }
         radioGroupIpVersion.setOnCheckedChangeListener { group, checkedId ->
             animateThumb(R.id.thumbIpVersion, group, checkedId)
             val ip = when (checkedId) { R.id.radioIpv6 -> "v6"; R.id.radioDual -> "dual"; else -> "v4" }
-            prefs.edit().putString("ip_version", ip).apply()
+            prefs.edit().putString("ip_version", ip).commit()
         }
         radioGroupMasque.setOnCheckedChangeListener { group, checkedId ->
             animateThumb(R.id.thumbMasque, group, checkedId)
-            prefs.edit().putBoolean("masque_http2", checkedId == R.id.radioHttp2).apply()
+            prefs.edit().putBoolean("masque_http2", checkedId == R.id.radioHttp2).commit()
         }
         radioGroupEndpointDiscovery.setOnCheckedChangeListener { group, checkedId ->
             animateThumb(R.id.thumbEndpointDiscovery, group, checkedId)
             val value = if (checkedId == R.id.radioEndpointFresh) "fresh" else "cache"
-            prefs.edit().putString("endpoint_discovery", value).apply()
+            prefs.edit().putString("endpoint_discovery", value).commit()
             textEndpointDiscoveryDesc.text = if (value == "fresh")
                 "Start a new scan every connection"
             else
                 "Use verified gateways first, then discover more"
         }
-        switchQuickReconnect.setOnCheckedChangeListener { _, c -> prefs.edit().putBoolean("quick_reconnect", c).apply() }
-        switchNotification.setOnCheckedChangeListener   { _, c -> prefs.edit().putBoolean("show_notification", c).apply() }
+        switchQuickReconnect.setOnCheckedChangeListener { _, c -> prefs.edit().putBoolean("quick_reconnect", c).commit() }
+        switchNotification.setOnCheckedChangeListener   { _, c -> prefs.edit().putBoolean("show_notification", c).commit() }
 
         findViewById<android.widget.LinearLayout>(R.id.btnSplitTunnel).setOnClickListener {
             startActivity(Intent(this, SplitTunnelActivity::class.java))
