@@ -25,14 +25,14 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build Release APKs (All Architectures)
-      run: ./gradlew assembleRelease
+    - name: Build Debug APKs (All Architectures)
+      run: ./gradlew assembleDebug
 
     - name: Upload APKs to Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: AetherVPN-APKs
-        path: app/build/outputs/apk/release/*.apk
+        path: app/build/outputs/apk/debug/*.apk
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
@@ -40,7 +40,7 @@ jobs:
       with:
         tag_name: "v1.0.${{ github.run_number }}"
         name: "AetherVPN Auto-Build v1.0.${{ github.run_number }}"
-        files: app/build/outputs/apk/release/*.apk
+        files: app/build/outputs/apk/debug/*.apk
         draft: false
         prerelease: false
         generate_release_notes: true

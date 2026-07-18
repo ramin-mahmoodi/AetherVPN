@@ -112,7 +112,6 @@ class AetherVpnService : VpnService() {
         builder.setMtu(1500)
         builder.addAddress("10.0.0.2", 24)
         builder.addDnsServer("1.1.1.1")
-        builder.addDnsServer("8.8.8.8")
         builder.addRoute("0.0.0.0", 0)
         
         try {
