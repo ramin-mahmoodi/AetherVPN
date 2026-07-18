@@ -64,12 +64,29 @@ class MainActivity : AppCompatActivity() {
         const val VPN_REQUEST_CODE = 1001
     }
 
+    private val logBuffer = StringBuilder()
+    private var isLogUpdateScheduled = false
+
     private val logReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val logLine = intent?.getStringExtra("logLine") ?: return
-            logText.append(logLine + "\n")
-            logScrollView.post {
-                logScrollView.fullScroll(View.FOCUS_DOWN)
+            
+            // Limit buffer size to prevent memory issues
+            if (logBuffer.length > 50000) {
+                logBuffer.delete(0, logBuffer.length - 25000)
+            }
+            
+            logBuffer.append(logLine).append("\n")
+            
+            if (!isLogUpdateScheduled) {
+                isLogUpdateScheduled = true
+                logText.postDelayed({
+                    logText.text = logBuffer.toString()
+                    logScrollView.post {
+                        logScrollView.fullScroll(View.FOCUS_DOWN)
+                    }
+                    isLogUpdateScheduled = false
+                }, 500)
             }
         }
     }
