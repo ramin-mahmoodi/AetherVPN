@@ -190,6 +190,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                     <RadioButton android:id="@+id/radioIpv6"
                         android:layout_width="0dp"
@@ -199,6 +200,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                     <RadioButton android:id="@+id/radioDual"
                         android:layout_width="0dp"
@@ -208,6 +210,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                 </RadioGroup>
             </FrameLayout>
@@ -258,6 +261,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                     <RadioButton android:id="@+id/radioHttp2"
                         android:layout_width="0dp"
@@ -267,6 +271,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                 </RadioGroup>
             </FrameLayout>
@@ -312,7 +317,7 @@
                     android:background="@null"
                     android:thumbTint="@color/switch_thumb_tint"
                     android:trackTint="@color/switch_track_tint"
-                    android:theme="@style/Theme.Aether" />
+                    android:theme="@style/Theme.Aether.NoRippleSwitch" />
             </LinearLayout>
 
             <LinearLayout
@@ -334,7 +339,7 @@
                     android:background="@null"
                     android:thumbTint="@color/switch_thumb_tint"
                     android:trackTint="@color/switch_track_tint"
-                    android:theme="@style/Theme.Aether" />
+                    android:theme="@style/Theme.Aether.NoRippleSwitch" />
             </LinearLayout>
         </LinearLayout>
 
@@ -392,6 +397,7 @@
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
 
                     <RadioButton
@@ -399,10 +405,11 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Fresh Scan"
+                        android:text="Always Fresh"
                         android:gravity="center"
                         android:textColor="@color/text_main"
                         android:textSize="12sp"
+                        android:background="@null"
                         android:button="@null" />
                 </RadioGroup>
             </FrameLayout>

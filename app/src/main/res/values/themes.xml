@@ -17,4 +17,8 @@
         <item name="android:statusBarColor">@color/bg_main</item>
         <item name="android:navigationBarColor">@color/bg_main</item>
     </style>
+
+    <style name="Theme.Aether.NoRippleSwitch" parent="Theme.Aether">
+        <item name="colorControlHighlight">@android:color/transparent</item>
+    </style>
 </resources>
