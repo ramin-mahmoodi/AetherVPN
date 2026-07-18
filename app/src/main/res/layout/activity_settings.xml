@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_main">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Top Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="16dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_media_previous"
+                android:padding="8dp"
+                android:tint="@color/text_main"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Settings"
+                android:textColor="@color/text_main"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="10dp" />
+        </LinearLayout>
+
+        <!-- Protocol -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROTOCOL"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <Spinner
+                android:id="@+id/spinnerProtocol"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/surface_light"
+                android:popupBackground="@color/surface_dark" />
+        </LinearLayout>
+
+        <!-- Scan Mode -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SCAN MODE"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/surface_light">
+
+                <View
+                    android:id="@+id/thumbScanMode"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/primary_orange" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroupScanMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton android:id="@+id/radioTurbo"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Turbo"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioBalanced"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Balanced"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioThorough"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Thorough"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioStealth"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Stealth"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                </RadioGroup>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- IP Version -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IP VERSION"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/surface_light">
+
+                <View
+                    android:id="@+id/thumbIpVersion"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/primary_orange" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroupIpVersion"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton android:id="@+id/radioIpv4"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="IPv4"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioIpv6"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="IPv6"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioDual"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Dual"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                </RadioGroup>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- MASQUE Transport -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MASQUE TRANSPORT"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/surface_light">
+
+                <View
+                    android:id="@+id/thumbMasque"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/primary_orange" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroupMasque"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton android:id="@+id/radioHttp3"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="HTTP/3"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                    <RadioButton android:id="@+id/radioHttp2"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="HTTP/2"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                </RadioGroup>
+            </FrameLayout>
+        </LinearLayout>
+
+        <!-- Toggles -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPTIONS"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Quick Reconnect"
+                    android:textColor="@color/text_main"
+                    android:textSize="14sp" />
+                <Switch
+                    android:id="@+id/switchQuickReconnect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:thumbTint="@color/switch_thumb_tint"
+                    android:trackTint="@color/switch_track_tint"
+                    android:theme="@style/Theme.Aether" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Show Notification"
+                    android:textColor="@color/text_main"
+                    android:textSize="14sp" />
+                <Switch
+                    android:id="@+id/switchNotification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:thumbTint="@color/switch_thumb_tint"
+                    android:trackTint="@color/switch_track_tint"
+                    android:theme="@style/Theme.Aether" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Split Tunneling -->
+        <LinearLayout
+            android:id="@+id/btnSplitTunnel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:padding="16dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Split Tunneling"
+                    android:textColor="@color/text_main"
+                    android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose apps to bypass VPN"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="@color/primary_orange"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -195,7 +195,6 @@ class AetherVpnService : VpnService() {
                 val pipeFd = result[1]
                 tun2socksPid = pid
                 broadcastLog("[VPN] Routing engine ready (PID $pid)")
-                broadcastStatus(STATUS_CONNECTED)
 
                 thread {
                     try {

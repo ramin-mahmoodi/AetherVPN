@@ -31,6 +31,12 @@
             android:theme="@style/Theme.Aether"
             android:label="Split Tunneling" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Aether"
+            android:label="Settings" />
+
         <service
             android:name=".AetherVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
