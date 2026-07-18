@@ -197,17 +197,15 @@ class AetherVpnService : VpnService() {
                 if (!isRunning) break
                 try {
                     val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
-                    val url = java.net.URL("http://connectivitycheck.gstatic.com/generate_204")
-                    val conn = url.openConnection(proxy) as java.net.HttpURLConnection
-                    conn.connectTimeout = 3000
-                    conn.readTimeout = 3000
-                    val code = conn.responseCode
-                    if (code == 204 || code == 200) {
-                        broadcastStatus(STATUS_CONNECTED)
-                        broadcastLog("[VPN] Active validation successful! Connection is truly established.")
-                        isActuallyConnected = true
-                        break
-                    }
+                    val socket = java.net.Socket(proxy)
+                    val dest = java.net.InetSocketAddress("1.1.1.1", 80)
+                    socket.connect(dest, 3000)
+                    socket.close()
+                    
+                    broadcastStatus(STATUS_CONNECTED)
+                    broadcastLog("[VPN] Active validation successful! Connection is truly established.")
+                    isActuallyConnected = true
+                    break
                 } catch (e: Exception) {
                     // Ignore and retry
                 }

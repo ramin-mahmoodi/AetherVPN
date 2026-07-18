@@ -118,6 +118,13 @@ class SplitTunnelActivity : AppCompatActivity() {
         val apps = resolveInfos.mapNotNull { resolveInfo ->
             val app = resolveInfo.activityInfo.applicationInfo
             if (app.packageName == packageName) return@mapNotNull null
+            
+            // Exclude system apps
+            if ((app.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0 && 
+                (app.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0) {
+                return@mapNotNull null
+            }
+            
             try {
                 AppItem(
                     name = pm.getApplicationLabel(app).toString(),

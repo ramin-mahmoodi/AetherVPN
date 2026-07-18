@@ -28,7 +28,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var statusTextTitle: TextView
     private lateinit var statusTextDesc: TextView
+    private lateinit var connectButtonLayout: FrameLayout
     private lateinit var connectButton: ConnectButton
+    private lateinit var powerIcon: ImageView
     private lateinit var statsRow: LinearLayout
     private lateinit var textDownload: TextView
     private lateinit var textUpload: TextView
@@ -74,13 +76,15 @@ class MainActivity : AppCompatActivity() {
 
         statusTextTitle     = findViewById(R.id.statusTextTitle)
         statusTextDesc      = findViewById(R.id.statusTextDesc)
+        connectButtonLayout = findViewById(R.id.connectButtonLayout)
         connectButton       = findViewById(R.id.connectButton)
+        powerIcon           = findViewById(R.id.powerIcon)
         statsRow            = findViewById(R.id.statsRow)
         textDownload        = findViewById(R.id.textDownload)
         textUpload          = findViewById(R.id.textUpload)
         textPing            = findViewById(R.id.textPing)
 
-        connectButton.setOnClickListener { toggleConnection() }
+        connectButtonLayout.setOnClickListener { toggleConnection() }
 
         findViewById<ImageView>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -114,6 +118,7 @@ class MainActivity : AppCompatActivity() {
                 statusTextTitle.text = "Connected"
                 statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.status_connected))
                 statusTextDesc.text = "Your traffic is secure"
+                powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.status_connected), android.graphics.PorterDuff.Mode.SRC_IN)
                 connectButton.state = ConnectButton.State.CONNECTED
                 statsRow.visibility = View.VISIBLE
                 startDataTracking()
@@ -124,6 +129,7 @@ class MainActivity : AppCompatActivity() {
                 statusTextTitle.text = "Connecting..."
                 statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.primary_orange))
                 statusTextDesc.text = "Establishing tunnel"
+                powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.primary_orange), android.graphics.PorterDuff.Mode.SRC_IN)
                 connectButton.state = ConnectButton.State.CONNECTING
                 statsRow.visibility = View.GONE
             }
@@ -132,6 +138,7 @@ class MainActivity : AppCompatActivity() {
                 statusTextTitle.text = "Disconnected"
                 statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.text_main))
                 statusTextDesc.text = "Click to connect"
+                powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_muted), android.graphics.PorterDuff.Mode.SRC_IN)
                 connectButton.state = ConnectButton.State.DISCONNECTED
                 statsRow.visibility = View.GONE
                 stopDataTracking()

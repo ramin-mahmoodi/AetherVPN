@@ -64,11 +64,34 @@
         android:paddingBottom="16dp">
 
         <!-- Power Button -->
-        <com.cluvexstudio.aether.ConnectButton
-            android:id="@+id/connectButton"
+        <FrameLayout
+            android:id="@+id/connectButtonLayout"
             android:layout_width="240dp"
             android:layout_height="240dp"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="20dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <com.cluvexstudio.aether.ConnectButton
+                android:id="@+id/connectButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/connectButtonBg"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center"
+                android:background="@drawable/connect_button_bg" />
+
+            <ImageView
+                android:id="@+id/powerIcon"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_power"
+                android:tint="@color/text_muted" />
+        </FrameLayout>
 
         <!-- Status -->
         <TextView

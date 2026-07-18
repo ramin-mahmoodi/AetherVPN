@@ -63,29 +63,11 @@ class ConnectButton @JvmOverloads constructor(
             State.CONNECTED -> colorConnected
         }
 
-        // Draw background circle
-        paint.style = Paint.Style.FILL
-        paint.color = colorBg
-        canvas.drawCircle(centerX, centerY, radius, paint)
-
         // Draw outer ring
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = dp(if (state == State.DISCONNECTED) 2 else 3).toFloat()
         paint.color = accentColor
         canvas.drawCircle(centerX, centerY, radius, paint)
-
-        // Draw Power Icon (Circle part)
-        paint.strokeWidth = dp(4).toFloat()
-        paint.strokeCap = Paint.Cap.ROUND
-        
-        val iconRadius = size * 0.2f
-        arcRect.set(centerX - iconRadius, centerY - iconRadius, centerX + iconRadius, centerY + iconRadius)
-        canvas.drawArc(arcRect, -230f, 280f, false, paint)
-
-        // Draw Power Icon (Vertical Line)
-        canvas.drawLine(centerX, centerY - iconRadius * 1.2f, centerX, centerY, paint)
-        
-        paint.strokeCap = Paint.Cap.BUTT
 
         // Draw Connecting Arc
         if (state == State.CONNECTING) {
