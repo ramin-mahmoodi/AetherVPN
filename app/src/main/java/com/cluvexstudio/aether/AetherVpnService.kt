@@ -31,6 +31,9 @@ class AetherVpnService : VpnService() {
         const val STATUS_CONNECTED = "connected"
         const val STATUS_DISCONNECTED = "disconnected"
 
+        @Volatile
+        var isCoreReady = false
+
         private val READY_SIGNALS = listOf(
             "accepted by gateway",
             "CONNECT-IP accepted"
@@ -67,9 +70,9 @@ class AetherVpnService : VpnService() {
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 
         // Detect when tunnel is actually ready
-        if (isRunning && currentStatus != STATUS_CONNECTED) {
+        if (isRunning && !isCoreReady) {
             if (READY_SIGNALS.any { msg.contains(it, ignoreCase = true) }) {
-                broadcastStatus(STATUS_CONNECTED)
+                isCoreReady = true
             }
         }
 
@@ -100,6 +103,7 @@ class AetherVpnService : VpnService() {
         }
 
         isRunning = true
+        isCoreReady = false
         broadcastStatus(STATUS_CONNECTING)
 
         thread {
@@ -107,7 +111,7 @@ class AetherVpnService : VpnService() {
             
             // Wait for Aether core to establish connection and start SOCKS proxy (Wait up to 30s)
             var waited = 0
-            while (isRunning && currentStatus != STATUS_CONNECTED && waited < 300) {
+            while (isRunning && !isCoreReady && waited < 300) {
                 Thread.sleep(100)
                 waited++
             }
@@ -329,8 +333,15 @@ class AetherVpnService : VpnService() {
                 try {
                     val reader = java.io.BufferedReader(java.io.InputStreamReader(aetherProcess!!.inputStream))
                     var line: String?
+                    val readySignals = listOf("accepted by gateway", "connect-ip accepted", "listening on", "proxy ready", "socks5 server listening")
                     while (reader.readLine().also { line = it } != null) {
                         broadcastLog("[CORE] $line")
+                        if (!isCoreReady && line != null) {
+                            val lowerLine = line!!.lowercase()
+                            if (readySignals.any { lowerLine.contains(it) }) {
+                                isCoreReady = true
+                            }
+                        }
                     }
                     val exitCode = aetherProcess!!.waitFor()
                     if (isRunning) broadcastLog("[CORE] Process exited with code: $exitCode")
