@@ -22,7 +22,7 @@ class AetherVpnService : VpnService() {
 
     companion object {
         var isRunning = false
-        var currentStatus = STATUS_DISCONNECTED
+        var currentStatus = "disconnected"
         private const val NOTIFICATION_CHANNEL_ID = "aether_vpn_channel"
         private const val NOTIFICATION_ID = 1
 
