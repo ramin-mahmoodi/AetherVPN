@@ -33,11 +33,7 @@ class AetherVpnService : VpnService() {
 
         private val READY_SIGNALS = listOf(
             "accepted by gateway",
-            "CONNECT-IP accepted",
-            "listening on",
-            "bound to",
-            "socks5 proxy started",
-            "proxy ready"
+            "CONNECT-IP accepted"
         )
 
         init {
@@ -109,9 +105,9 @@ class AetherVpnService : VpnService() {
         thread {
             startAetherCore()
             
-            // Wait for Aether core to establish connection and start SOCKS proxy
+            // Wait for Aether core to establish connection and start SOCKS proxy (Wait up to 30s)
             var waited = 0
-            while (isRunning && currentStatus != STATUS_CONNECTED && waited < 150) { // Max 15 seconds
+            while (isRunning && currentStatus != STATUS_CONNECTED && waited < 300) {
                 Thread.sleep(100)
                 waited++
             }
@@ -193,6 +189,35 @@ class AetherVpnService : VpnService() {
         Log.i("AetherVPN", "VPN Interface established, FD: $fd")
 
         startTun2Socks(fd)
+
+        // Actively validate connection before reporting Connected
+        thread {
+            var isActuallyConnected = false
+            for (i in 1..20) { // Try for 20 seconds
+                if (!isRunning) break
+                try {
+                    val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
+                    val url = java.net.URL("http://connectivitycheck.gstatic.com/generate_204")
+                    val conn = url.openConnection(proxy) as java.net.HttpURLConnection
+                    conn.connectTimeout = 3000
+                    conn.readTimeout = 3000
+                    val code = conn.responseCode
+                    if (code == 204 || code == 200) {
+                        broadcastStatus(STATUS_CONNECTED)
+                        broadcastLog("[VPN] Active validation successful! Connection is truly established.")
+                        isActuallyConnected = true
+                        break
+                    }
+                } catch (e: Exception) {
+                    // Ignore and retry
+                }
+                Thread.sleep(1000)
+            }
+            if (!isActuallyConnected && isRunning) {
+                broadcastLog("[VPN] ERROR: Connection validation failed. Traffic is not flowing.")
+                // We keep it in Connecting state, or we could disconnect it.
+            }
+        }
     }
 
     private fun startTun2Socks(tunFd: Int) {
@@ -205,7 +230,7 @@ class AetherVpnService : VpnService() {
 
             val configFile = File(filesDir, "tun2socks.yml")
             val configContent = """
-                loglevel: "warn"
+                loglevel: "info"
                 device: "fd://$tunFd"
                 proxy: "socks5://127.0.0.1:1819"
             """.trimIndent()
