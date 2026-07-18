@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class SettingsActivity : AppCompatActivity() {
@@ -34,7 +36,7 @@ class SettingsActivity : AppCompatActivity() {
         radioGroupIpVersion = findViewById(R.id.radioGroupIpVersion)
         radioGroupMasque = findViewById(R.id.radioGroupMasque)
         radioGroupEndpointDiscovery = findViewById(R.id.radioGroupEndpointDiscovery)
-        textEndpointDiscoveryDesc = findViewById(R.id.textEndpointDiscoveryDesc)
+        textEndpointDiscoveryDesc = findViewById<TextView>(R.id.textEndpointDiscoveryDesc)
         switchQuickReconnect = findViewById(R.id.switchQuickReconnect)
         switchNotification = findViewById(R.id.switchNotification)
 
