@@ -309,6 +309,7 @@
                     android:id="@+id/switchQuickReconnect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:thumbTint="@color/switch_thumb_tint"
                     android:trackTint="@color/switch_track_tint"
                     android:theme="@style/Theme.Aether" />
@@ -330,6 +331,7 @@
                     android:id="@+id/switchNotification"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:thumbTint="@color/switch_thumb_tint"
                     android:trackTint="@color/switch_track_tint"
                     android:theme="@style/Theme.Aether" />

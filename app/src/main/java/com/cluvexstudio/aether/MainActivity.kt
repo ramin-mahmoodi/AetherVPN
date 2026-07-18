@@ -28,8 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var statusTextTitle: TextView
     private lateinit var statusTextDesc: TextView
-    private lateinit var powerIcon: ImageView
-    private lateinit var connectButtonLayout: FrameLayout
+    private lateinit var connectButton: ConnectButton
     private lateinit var statsRow: LinearLayout
     private lateinit var textDownload: TextView
     private lateinit var textUpload: TextView
@@ -75,14 +74,13 @@ class MainActivity : AppCompatActivity() {
 
         statusTextTitle     = findViewById(R.id.statusTextTitle)
         statusTextDesc      = findViewById(R.id.statusTextDesc)
-        powerIcon           = findViewById(R.id.powerIcon)
-        connectButtonLayout = findViewById(R.id.connectButtonLayout)
+        connectButton       = findViewById(R.id.connectButton)
         statsRow            = findViewById(R.id.statsRow)
         textDownload        = findViewById(R.id.textDownload)
         textUpload          = findViewById(R.id.textUpload)
         textPing            = findViewById(R.id.textPing)
 
-        connectButtonLayout.setOnClickListener { toggleConnection() }
+        connectButton.setOnClickListener { toggleConnection() }
 
         findViewById<ImageView>(R.id.btnSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -107,41 +105,40 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncState() {
         when (AetherVpnService.currentStatus) {
-            AetherVpnService.STATUS_CONNECTING   -> { if (!isConnecting) showConnecting() }
-            AetherVpnService.STATUS_CONNECTED    -> { if (!isConnected)  showConnected()  }
-            AetherVpnService.STATUS_DISCONNECTED -> { if (isConnected || isConnecting) showDisconnected() }
+        updateStatusUi(AetherVpnService.currentStatus)
+    }
+
+    private fun updateStatusUi(status: String) {
+        when (status) {
+            AetherVpnService.STATUS_CONNECTED -> {
+                isConnecting = false; isConnected = true
+                statusTextTitle.text = "Connected"
+                statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.status_connected))
+                statusTextDesc.text = "Your traffic is secure"
+                connectButton.state = ConnectButton.State.CONNECTED
+                statsRow.visibility = View.VISIBLE
+                startDataTracking()
+                startPingTracking()
+            }
+            AetherVpnService.STATUS_CONNECTING -> {
+                isConnecting = true; isConnected = false
+                statusTextTitle.text = "Connecting..."
+                statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.primary_orange))
+                statusTextDesc.text = "Establishing tunnel"
+                connectButton.state = ConnectButton.State.CONNECTING
+                statsRow.visibility = View.GONE
+            }
+            else -> {
+                isConnecting = false; isConnected = false
+                statusTextTitle.text = "Disconnected"
+                statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.text_main))
+                statusTextDesc.text = "Click to connect"
+                connectButton.state = ConnectButton.State.DISCONNECTED
+                statsRow.visibility = View.GONE
+                stopDataTracking()
+                stopPingTracking()
+            }
         }
-    }
-
-    private fun showConnecting() {
-        isConnecting = true; isConnected = false
-        statusTextTitle.text = "Connecting..."
-        statusTextTitle.setTextColor(0xFFFFA726.toInt())
-        statusTextDesc.text = "Scanning for best gateway..."
-        powerIcon.setColorFilter(0xFFFFA726.toInt())
-        statsRow.visibility = View.GONE
-    }
-
-    private fun showConnected() {
-        isConnecting = false; isConnected = true
-        statusTextTitle.text = "Connected"
-        statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.status_connected))
-        statusTextDesc.text = "Tap to disconnect"
-        powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.status_connected))
-        statsRow.visibility = View.VISIBLE
-        startDataTracking()
-        startPingTracking()
-    }
-
-    private fun showDisconnected() {
-        isConnecting = false; isConnected = false
-        statusTextTitle.text = "Disconnected"
-        statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.text_main))
-        statusTextDesc.text = "Click to connect"
-        powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_muted))
-        statsRow.visibility = View.GONE
-        stopDataTracking()
-        stopPingTracking()
     }
 
     private fun toggleConnection() {

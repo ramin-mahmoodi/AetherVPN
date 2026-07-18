@@ -109,21 +109,25 @@ class SplitTunnelActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
         val excluded = prefs.getStringSet("split_tunnel_excluded", emptySet()) ?: emptySet()
 
-        // Load installed apps (user apps only)
-        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            .filter { it.packageName != packageName }
-            .filter { (it.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0 || (it.flags and android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0 }
-            .mapNotNull { app ->
-                try {
-                    AppItem(
-                        name = pm.getApplicationLabel(app).toString(),
-                        packageName = app.packageName,
-                        icon = pm.getApplicationIcon(app),
-                        excluded = excluded.contains(app.packageName)
-                    )
-                } catch (e: Exception) { null }
-            }
-            .sortedWith(compareByDescending<AppItem> { it.excluded }.thenBy { it.name.lowercase() })
+        // Load installed apps (only those with a launcher icon)
+        val mainIntent = Intent(Intent.ACTION_MAIN, null)
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+        
+        val resolveInfos = pm.queryIntentActivities(mainIntent, 0)
+        val apps = resolveInfos.mapNotNull { resolveInfo ->
+            val app = resolveInfo.activityInfo.applicationInfo
+            if (app.packageName == packageName) return@mapNotNull null
+            try {
+                AppItem(
+                    name = pm.getApplicationLabel(app).toString(),
+                    packageName = app.packageName,
+                    icon = pm.getApplicationIcon(app),
+                    excluded = excluded.contains(app.packageName)
+                )
+            } catch (e: Exception) { null }
+        }
+        .distinctBy { it.packageName }
+        .sortedWith(compareByDescending<AppItem> { it.excluded }.thenBy { it.name.lowercase() })
 
         allApps = apps
         adapter = AppListAdapter(apps.toMutableList(),
