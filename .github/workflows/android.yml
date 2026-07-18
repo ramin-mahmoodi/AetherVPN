@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -26,8 +28,21 @@ jobs:
     - name: Build Debug APKs (All Architectures)
       run: ./gradlew assembleDebug
 
-    - name: Upload APKs
+    - name: Upload APKs to Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: AetherVPN-APKs
         path: app/build/outputs/apk/debug/*.apk
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      with:
+        tag_name: "v1.0.${{ github.run_number }}"
+        name: "AetherVPN Auto-Build v1.0.${{ github.run_number }}"
+        files: app/build/outputs/apk/debug/*.apk
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
