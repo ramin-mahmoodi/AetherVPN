@@ -21,6 +21,7 @@ class AetherVpnService : VpnService() {
     private var tun2socksPid: Int = -1
 
     companion object {
+        var isRunning = false
         private const val NOTIFICATION_CHANNEL_ID = "aether_vpn_channel"
         private const val NOTIFICATION_ID = 1
 
@@ -56,6 +57,8 @@ class AetherVpnService : VpnService() {
         if (showNotification) {
             startForeground(NOTIFICATION_ID, createNotification())
         }
+        
+        isRunning = true
         
         thread {
             startAetherCore()
@@ -109,6 +112,7 @@ class AetherVpnService : VpnService() {
         builder.setMtu(1500)
         builder.addAddress("10.0.0.2", 24)
         builder.addDnsServer("1.1.1.1")
+        builder.addDnsServer("8.8.8.8")
         builder.addRoute("0.0.0.0", 0)
         
         try {
@@ -253,10 +257,17 @@ class AetherVpnService : VpnService() {
 
     private fun stopVpnGracefully() {
         Log.i("AetherVPN", "Cleaning up VPN resources...")
+        isRunning = false
         try { vpnInterface?.close() } catch (e: Exception) {}
         vpnInterface = null
         
-        try { aetherProcess?.destroy() } catch (e: Exception) {}
+        try { 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                aetherProcess?.destroyForcibly()
+            } else {
+                aetherProcess?.destroy()
+            }
+        } catch (e: Exception) {}
         aetherProcess = null
         
         if (tun2socksPid != -1) {

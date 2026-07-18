@@ -139,7 +139,19 @@ class MainActivity : AppCompatActivity() {
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
             .registerReceiver(logReceiver, android.content.IntentFilter("AETHER_LOG"))
             
-        updateUIState()
+        syncState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        syncState()
+    }
+
+    private fun syncState() {
+        if (isConnected != AetherVpnService.isRunning) {
+            isConnected = AetherVpnService.isRunning
+            updateUIState()
+        }
     }
 
     private fun setupControls() {
@@ -261,26 +273,35 @@ class MainActivity : AppCompatActivity() {
     private fun updateThumbs() {
         val rbScan = radioGroupScanMode.findViewById<RadioButton>(radioGroupScanMode.checkedRadioButtonId)
         val thumbScan = findViewById<View>(R.id.thumbScanMode)
-        if (rbScan != null) {
-            thumbScan.x = rbScan.x
-            thumbScan.layoutParams.width = rbScan.width
-            thumbScan.requestLayout()
+        if (rbScan != null && thumbScan != null) {
+            radioGroupScanMode.post {
+                thumbScan.animate().x(rbScan.x).setDuration(0).start()
+                val params = thumbScan.layoutParams
+                params.width = rbScan.width
+                thumbScan.layoutParams = params
+            }
         }
 
         val rbIp = radioGroupIpVersion.findViewById<RadioButton>(radioGroupIpVersion.checkedRadioButtonId)
         val thumbIp = findViewById<View>(R.id.thumbIpVersion)
-        if (rbIp != null) {
-            thumbIp.x = rbIp.x
-            thumbIp.layoutParams.width = rbIp.width
-            thumbIp.requestLayout()
+        if (rbIp != null && thumbIp != null) {
+            radioGroupIpVersion.post {
+                thumbIp.animate().x(rbIp.x).setDuration(0).start()
+                val params = thumbIp.layoutParams
+                params.width = rbIp.width
+                thumbIp.layoutParams = params
+            }
         }
 
         val rbMasque = radioGroupMasque.findViewById<RadioButton>(radioGroupMasque.checkedRadioButtonId)
         val thumbMasque = findViewById<View>(R.id.thumbMasque)
-        if (rbMasque != null) {
-            thumbMasque.x = rbMasque.x
-            thumbMasque.layoutParams.width = rbMasque.width
-            thumbMasque.requestLayout()
+        if (rbMasque != null && thumbMasque != null) {
+            radioGroupMasque.post {
+                thumbMasque.animate().x(rbMasque.x).setDuration(0).start()
+                val params = thumbMasque.layoutParams
+                params.width = rbMasque.width
+                thumbMasque.layoutParams = params
+            }
         }
     }
 
