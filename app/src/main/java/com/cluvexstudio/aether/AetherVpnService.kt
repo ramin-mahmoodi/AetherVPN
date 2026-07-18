@@ -271,7 +271,11 @@ class AetherVpnService : VpnService() {
         
         if (tun2socksPid != -1) {
             try {
-                Runtime.getRuntime().exec("kill -9 $tun2socksPid")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    android.system.Os.kill(tun2socksPid, android.system.OsConstants.SIGKILL)
+                } else {
+                    Runtime.getRuntime().exec("kill -9 $tun2socksPid")
+                }
             } catch (e: Exception) {}
             tun2socksPid = -1
         }
