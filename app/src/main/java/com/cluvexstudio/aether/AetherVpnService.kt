@@ -33,6 +33,9 @@ class AetherVpnService : VpnService() {
 
         @Volatile
         var isCoreReady = false
+        
+        @Volatile
+        private var isReconnecting = false
 
         private val READY_SIGNALS = listOf(
             "accepted by gateway",
@@ -102,8 +105,15 @@ class AetherVpnService : VpnService() {
             startForeground(NOTIFICATION_ID, createNotification("Connecting..."))
         }
 
+        connectInternal()
+
+        return START_STICKY
+    }
+
+    private fun connectInternal() {
         isRunning = true
         isCoreReady = false
+        isReconnecting = false
         broadcastStatus(STATUS_CONNECTING)
 
         thread {
@@ -116,12 +126,41 @@ class AetherVpnService : VpnService() {
                 waited++
             }
             
-            if (isRunning) {
+            if (isRunning && !isReconnecting) {
                 setupVpn()
             }
         }
-
-        return START_STICKY
+    }
+    
+    private fun triggerReconnect() {
+        synchronized(this) {
+            if (!isRunning || isReconnecting) return
+            isReconnecting = true
+        }
+        
+        broadcastLog("[VPN] Watchdog triggered reconnect...")
+        
+        // Clean up old resources
+        try { vpnInterface?.close() } catch (e: Exception) {}
+        vpnInterface = null
+        
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) aetherProcess?.destroyForcibly() else aetherProcess?.destroy()
+        } catch (e: Exception) {}
+        aetherProcess = null
+        
+        if (tun2socksPid != -1) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    android.system.Os.kill(tun2socksPid, android.system.OsConstants.SIGKILL)
+                } else {
+                    Runtime.getRuntime().exec("kill -9 $tun2socksPid")
+                }
+            } catch (e: Exception) {}
+            tun2socksPid = -1
+        }
+        
+        connectInternal()
     }
 
     private fun createNotificationChannel() {
@@ -215,9 +254,35 @@ class AetherVpnService : VpnService() {
                 }
                 Thread.sleep(1000)
             }
+            
             if (!isActuallyConnected && isRunning) {
-                broadcastLog("[VPN] ERROR: Connection validation failed. Traffic is not flowing.")
-                // We keep it in Connecting state, or we could disconnect it.
+                broadcastLog("[VPN] ERROR: Connection validation failed. Triggering reconnect...")
+                triggerReconnect()
+                return@thread
+            }
+            
+            // Watchdog loop
+            var failedPings = 0
+            while (isRunning && currentStatus == STATUS_CONNECTED) {
+                Thread.sleep(10000) // Check every 10 seconds
+                if (!isRunning || currentStatus != STATUS_CONNECTED) break
+                
+                try {
+                    val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
+                    val socket = java.net.Socket(proxy)
+                    val dest = java.net.InetSocketAddress("1.1.1.1", 80)
+                    socket.connect(dest, 3000)
+                    socket.close()
+                    failedPings = 0 // Reset on success
+                } catch (e: Exception) {
+                    failedPings++
+                    broadcastLog("[VPN] Watchdog: Ping failed ($failedPings/3)")
+                    if (failedPings >= 3) {
+                        broadcastLog("[VPN] ERROR: Internet connection died. Triggering reconnect...")
+                        triggerReconnect()
+                        break
+                    }
+                }
             }
         }
     }
@@ -344,7 +409,10 @@ class AetherVpnService : VpnService() {
                         }
                     }
                     val exitCode = aetherProcess!!.waitFor()
-                    if (isRunning) broadcastLog("[CORE] Process exited with code: $exitCode")
+                    if (isRunning) {
+                        broadcastLog("[CORE] Process exited with code: $exitCode")
+                        if (!isReconnecting) triggerReconnect()
+                    }
                 } catch (e: Exception) {
                     Log.e("AetherVPN", "Aether log reader error", e)
                 }
