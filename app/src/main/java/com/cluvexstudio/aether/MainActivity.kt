@@ -29,6 +29,7 @@ import android.os.Process
 class MainActivity : AppCompatActivity() {
 
     private var isConnected = false
+    private var isConnecting = false
     private lateinit var statusTextTitle: TextView
     private lateinit var statusTextDesc: TextView
     private lateinit var powerIcon: ImageView
@@ -70,14 +71,14 @@ class MainActivity : AppCompatActivity() {
     private val logReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val logLine = intent?.getStringExtra("logLine") ?: return
-            
+
             // Limit buffer size to prevent memory issues
             if (logBuffer.length > 50000) {
                 logBuffer.delete(0, logBuffer.length - 25000)
             }
-            
+
             logBuffer.append(logLine).append("\n")
-            
+
             if (!isLogUpdateScheduled) {
                 isLogUpdateScheduled = true
                 logText.postDelayed({
@@ -91,6 +92,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Receiver for connection status changes from AetherVpnService
+    private val statusReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val status = intent?.getStringExtra("status") ?: return
+            runOnUiThread {
+                when (status) {
+                    AetherVpnService.STATUS_CONNECTING -> showConnecting()
+                    AetherVpnService.STATUS_CONNECTED -> showConnected()
+                    AetherVpnService.STATUS_DISCONNECTED -> showDisconnected()
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -100,21 +115,21 @@ class MainActivity : AppCompatActivity() {
         statusTextDesc = findViewById(R.id.statusTextDesc)
         powerIcon = findViewById(R.id.powerIcon)
         connectButtonLayout = findViewById(R.id.connectButtonLayout)
-        
+
         advancedToggle = findViewById(R.id.advancedToggle)
         advancedToggleIcon = findViewById(R.id.advancedToggleIcon)
         advancedPanel = findViewById(R.id.advancedPanel)
-        
+
         spinnerProtocol = findViewById(R.id.spinnerProtocol)
         radioGroupScanMode = findViewById(R.id.radioGroupScanMode)
         radioGroupIpVersion = findViewById(R.id.radioGroupIpVersion)
         radioGroupMasque = findViewById(R.id.radioGroupMasque)
         switchQuickReconnect = findViewById(R.id.switchQuickReconnect)
         switchNotification = findViewById(R.id.switchNotification)
-        
+
         textDownload = findViewById(R.id.textDownload)
         textUpload = findViewById(R.id.textUpload)
-        
+
         logText = findViewById(R.id.logText)
         logScrollView = findViewById(R.id.logScrollView)
 
@@ -136,9 +151,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Split Tunneling button
+        findViewById<android.widget.LinearLayout>(R.id.btnSplitTunnel)?.setOnClickListener {
+            startActivity(Intent(this, SplitTunnelActivity::class.java))
+        }
+
+        // Register log receiver
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
             .registerReceiver(logReceiver, android.content.IntentFilter("AETHER_LOG"))
-            
+
+        // Register status receiver
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+            .registerReceiver(statusReceiver, android.content.IntentFilter(AetherVpnService.ACTION_STATUS))
+
         syncState()
     }
 
@@ -148,10 +173,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun syncState() {
-        if (isConnected != AetherVpnService.isRunning) {
-            isConnected = AetherVpnService.isRunning
-            updateUIState()
+        when (AetherVpnService.currentStatus) {
+            AetherVpnService.STATUS_CONNECTING -> showConnecting()
+            AetherVpnService.STATUS_CONNECTED -> showConnected()
+            else -> {
+                if (!AetherVpnService.isRunning && (isConnected || isConnecting)) {
+                    showDisconnected()
+                }
+            }
         }
+    }
+
+    private fun showConnecting() {
+        isConnecting = true
+        isConnected = false
+        statusTextTitle.text = "Connecting..."
+        statusTextTitle.setTextColor(0xFFFFA726.toInt()) // Orange
+        statusTextDesc.text = "Scanning for best gateway..."
+        powerIcon.setColorFilter(0xFFFFA726.toInt())
+    }
+
+    private fun showConnected() {
+        isConnecting = false
+        isConnected = true
+        statusTextTitle.text = "Connected"
+        statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.status_connected))
+        statusTextDesc.text = "Tap to disconnect"
+        powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.status_connected))
+        startDataTracking()
+    }
+
+    private fun showDisconnected() {
+        isConnecting = false
+        isConnected = false
+        statusTextTitle.text = "Disconnected"
+        statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.text_main))
+        statusTextDesc.text = "Click to connect"
+        powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_muted))
+        stopDataTracking()
     }
 
     private fun setupControls() {
@@ -235,36 +294,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadSettings() {
         val sharedPrefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
-        
+
         when (sharedPrefs.getString("protocol", "auto")) {
             "masque" -> spinnerProtocol.setSelection(1)
             "wireguard" -> spinnerProtocol.setSelection(2)
             "gool" -> spinnerProtocol.setSelection(3)
             else -> spinnerProtocol.setSelection(0)
         }
-        
+
         when (sharedPrefs.getString("scan_mode", "balanced")) {
             "turbo" -> radioGroupScanMode.check(R.id.radioTurbo)
             "balanced" -> radioGroupScanMode.check(R.id.radioBalanced)
             "thorough" -> radioGroupScanMode.check(R.id.radioThorough)
             "stealth" -> radioGroupScanMode.check(R.id.radioStealth)
         }
-        
+
         when (sharedPrefs.getString("ip_version", "v4")) {
             "v4" -> radioGroupIpVersion.check(R.id.radioIpv4)
             "v6" -> radioGroupIpVersion.check(R.id.radioIpv6)
             "dual" -> radioGroupIpVersion.check(R.id.radioDual)
         }
-        
+
         if (sharedPrefs.getBoolean("masque_http2", false)) {
             radioGroupMasque.check(R.id.radioHttp2)
         } else {
             radioGroupMasque.check(R.id.radioHttp3)
         }
-        
+
         switchQuickReconnect.isChecked = sharedPrefs.getBoolean("quick_reconnect", true)
         switchNotification.isChecked = sharedPrefs.getBoolean("show_notification", true)
-        
+
         findViewById<View>(android.R.id.content).post {
             updateThumbs()
         }
@@ -309,32 +368,32 @@ class MainActivity : AppCompatActivity() {
         val uid = Process.myUid()
         initialRxBytes = TrafficStats.getUidRxBytes(uid)
         initialTxBytes = TrafficStats.getUidTxBytes(uid)
-        
+
         if (initialRxBytes == TrafficStats.UNSUPPORTED.toLong()) initialRxBytes = 0
         if (initialTxBytes == TrafficStats.UNSUPPORTED.toLong()) initialTxBytes = 0
 
         dataRunnable = object : Runnable {
             override fun run() {
                 if (!isConnected) return
-                
+
                 var rx = TrafficStats.getUidRxBytes(uid)
                 var tx = TrafficStats.getUidTxBytes(uid)
-                
+
                 if (rx == TrafficStats.UNSUPPORTED.toLong()) rx = 0
                 if (tx == TrafficStats.UNSUPPORTED.toLong()) tx = 0
-                
+
                 val currentRx = Math.max(0, rx - initialRxBytes)
                 val currentTx = Math.max(0, tx - initialTxBytes)
-                
+
                 textDownload.text = formatBytes(currentRx)
                 textUpload.text = formatBytes(currentTx)
-                
+
                 dataHandler.postDelayed(this, 1000)
             }
         }
         dataHandler.post(dataRunnable!!)
     }
-    
+
     private fun stopDataTracking() {
         dataRunnable?.let { dataHandler.removeCallbacks(it) }
         dataRunnable = null
@@ -355,10 +414,12 @@ class MainActivity : AppCompatActivity() {
         stopDataTracking()
         androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
             .unregisterReceiver(logReceiver)
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+            .unregisterReceiver(statusReceiver)
     }
 
     private fun toggleConnection() {
-        if (!isConnected) {
+        if (!isConnected && !isConnecting) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1002)
@@ -382,34 +443,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUIState() {
-        if (isConnected) {
-            statusTextTitle.text = "Connected"
-            statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.status_connected))
-            statusTextDesc.text = "Tap to disconnect"
-            powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.status_connected))
-            startDataTracking()
-        } else {
-            statusTextTitle.text = "Disconnected"
-            statusTextTitle.setTextColor(ContextCompat.getColor(this, R.color.text_main))
-            statusTextDesc.text = "Click to connect"
-            powerIcon.setColorFilter(ContextCompat.getColor(this, R.color.text_muted))
-            stopDataTracking()
-        }
-    }
-
     private fun startVpnService() {
-        isConnected = true
-        updateUIState()
-        
+        showConnecting()
         val serviceIntent = Intent(this, AetherVpnService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
     }
 
     private fun stopVpnService() {
-        isConnected = false
-        updateUIState()
-        
+        showDisconnected()
         val serviceIntent = Intent(this, AetherVpnService::class.java)
         serviceIntent.action = "STOP_VPN"
         startService(serviceIntent)

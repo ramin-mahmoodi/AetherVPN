@@ -25,6 +25,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SplitTunnelActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Aether"
+            android:label="Split Tunneling" />
+
         <service
             android:name=".AetherVpnService"
             android:permission="android.permission.BIND_VPN_SERVICE"
