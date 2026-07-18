@@ -18,6 +18,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var radioGroupScanMode: RadioGroup
     private lateinit var radioGroupIpVersion: RadioGroup
     private lateinit var radioGroupMasque: RadioGroup
+    private lateinit var radioGroupEndpointDiscovery: RadioGroup
+    private lateinit var textEndpointDiscoveryDesc: TextView
     private lateinit var switchQuickReconnect: Switch
     private lateinit var switchNotification: Switch
 
@@ -31,6 +33,8 @@ class SettingsActivity : AppCompatActivity() {
         radioGroupScanMode = findViewById(R.id.radioGroupScanMode)
         radioGroupIpVersion = findViewById(R.id.radioGroupIpVersion)
         radioGroupMasque = findViewById(R.id.radioGroupMasque)
+        radioGroupEndpointDiscovery = findViewById(R.id.radioGroupEndpointDiscovery)
+        textEndpointDiscoveryDesc = findViewById(R.id.textEndpointDiscoveryDesc)
         switchQuickReconnect = findViewById(R.id.switchQuickReconnect)
         switchNotification = findViewById(R.id.switchNotification)
 
@@ -62,6 +66,16 @@ class SettingsActivity : AppCompatActivity() {
         }
         if (prefs.getBoolean("masque_http2", false)) radioGroupMasque.check(R.id.radioHttp2)
         else radioGroupMasque.check(R.id.radioHttp3)
+
+        // Endpoint discovery
+        val endpointDiscovery = prefs.getString("endpoint_discovery", "cache") ?: "cache"
+        if (endpointDiscovery == "fresh") {
+            radioGroupEndpointDiscovery.check(R.id.radioEndpointFresh)
+            textEndpointDiscoveryDesc.text = "Start a new scan every connection"
+        } else {
+            radioGroupEndpointDiscovery.check(R.id.radioEndpointCache)
+            textEndpointDiscoveryDesc.text = "Use verified gateways first, then discover more"
+        }
 
         switchQuickReconnect.isChecked = prefs.getBoolean("quick_reconnect", true)
         switchNotification.isChecked   = prefs.getBoolean("show_notification", true)
@@ -95,6 +109,15 @@ class SettingsActivity : AppCompatActivity() {
             animateThumb(R.id.thumbMasque, group, checkedId)
             prefs.edit().putBoolean("masque_http2", checkedId == R.id.radioHttp2).apply()
         }
+        radioGroupEndpointDiscovery.setOnCheckedChangeListener { group, checkedId ->
+            animateThumb(R.id.thumbEndpointDiscovery, group, checkedId)
+            val value = if (checkedId == R.id.radioEndpointFresh) "fresh" else "cache"
+            prefs.edit().putString("endpoint_discovery", value).apply()
+            textEndpointDiscoveryDesc.text = if (value == "fresh")
+                "Start a new scan every connection"
+            else
+                "Use verified gateways first, then discover more"
+        }
         switchQuickReconnect.setOnCheckedChangeListener { _, c -> prefs.edit().putBoolean("quick_reconnect", c).apply() }
         switchNotification.setOnCheckedChangeListener   { _, c -> prefs.edit().putBoolean("show_notification", c).apply() }
 
@@ -114,9 +137,10 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateThumbs() {
         listOf(
-            Triple(R.id.thumbScanMode,   radioGroupScanMode,   radioGroupScanMode.checkedRadioButtonId),
-            Triple(R.id.thumbIpVersion,  radioGroupIpVersion,  radioGroupIpVersion.checkedRadioButtonId),
-            Triple(R.id.thumbMasque,     radioGroupMasque,     radioGroupMasque.checkedRadioButtonId)
+            Triple(R.id.thumbScanMode,            radioGroupScanMode,            radioGroupScanMode.checkedRadioButtonId),
+            Triple(R.id.thumbIpVersion,            radioGroupIpVersion,           radioGroupIpVersion.checkedRadioButtonId),
+            Triple(R.id.thumbMasque,               radioGroupMasque,              radioGroupMasque.checkedRadioButtonId),
+            Triple(R.id.thumbEndpointDiscovery,    radioGroupEndpointDiscovery,   radioGroupEndpointDiscovery.checkedRadioButtonId)
         ).forEach { (thumbId, group, checkedId) ->
             val thumb = findViewById<View>(thumbId)
             val btn   = group.findViewById<RadioButton>(checkedId) ?: return@forEach

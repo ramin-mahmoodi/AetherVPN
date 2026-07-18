@@ -336,6 +336,85 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Endpoint Discovery -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/surface_dark"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ENDPOINT DISCOVERY"
+                android:textColor="@color/primary_orange"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="How to find servers on each connection"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginBottom="12dp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/surface_light">
+
+                <View
+                    android:id="@+id/thumbEndpointDiscovery"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/primary_orange" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroupEndpointDiscovery"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radioEndpointCache"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Cache &amp; Refresh"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+
+                    <RadioButton
+                        android:id="@+id/radioEndpointFresh"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Fresh Scan"
+                        android:gravity="center"
+                        android:textColor="@color/text_main"
+                        android:textSize="12sp"
+                        android:button="@null" />
+                </RadioGroup>
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/textEndpointDiscoveryDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use verified gateways first, then discover more"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
         <!-- Split Tunneling -->
         <LinearLayout
             android:id="@+id/btnSplitTunnel"

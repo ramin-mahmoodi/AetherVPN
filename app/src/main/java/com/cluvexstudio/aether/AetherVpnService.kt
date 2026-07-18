@@ -257,10 +257,21 @@ class AetherVpnService : VpnService() {
             }
 
             pb.environment()["AETHER_QUICK_RECONNECT"] = if (quickReconnect) "1" else "0"
-            pb.environment()["AETHER_MASQUE_HTTP2"] = if (masqueHttp2) "1" else "0"
+            pb.environment()["AETHER_MASQUE_HTTP2"]    = if (masqueHttp2) "1" else "0"
             pb.directory(filesDir)
-            pb.environment()["AETHER_SOCKS"] = "127.0.0.1:1819"
-            pb.environment()["RUST_LOG"] = "info"
+            pb.environment()["AETHER_SOCKS"]           = "127.0.0.1:1819"
+            pb.environment()["RUST_LOG"]               = "info"
+
+            // Endpoint discovery: use cached gateways or fresh scan
+            val endpointDiscovery = sharedPrefs.getString("endpoint_discovery", "cache") ?: "cache"
+            pb.environment()["AETHER_ENDPOINT_DISCOVERY"] = endpointDiscovery
+            val cacheFile = java.io.File(filesDir, "masque-gateway-cache.json")
+            pb.environment()["AETHER_ENDPOINT_CACHE_PATH"] = cacheFile.absolutePath
+            if (endpointDiscovery == "cache") {
+                broadcastLog("[CORE] Using cached endpoints for fast connect...")
+            } else {
+                broadcastLog("[CORE] Fresh scan mode — scanning all endpoints...")
+            }
 
             pb.redirectErrorStream(true)
 
