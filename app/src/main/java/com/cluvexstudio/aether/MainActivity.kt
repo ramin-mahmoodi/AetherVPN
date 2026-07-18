@@ -60,9 +60,9 @@ class MainActivity : AppCompatActivity() {
             val status = intent?.getStringExtra("status") ?: return
             runOnUiThread {
                 when (status) {
-                    AetherVpnService.STATUS_CONNECTING   -> showConnecting()
-                    AetherVpnService.STATUS_CONNECTED    -> showConnected()
-                    AetherVpnService.STATUS_DISCONNECTED -> showDisconnected()
+                    AetherVpnService.STATUS_CONNECTING   -> updateStatusUi(AetherVpnService.STATUS_CONNECTING)
+                    AetherVpnService.STATUS_CONNECTED    -> updateStatusUi(AetherVpnService.STATUS_CONNECTED)
+                    AetherVpnService.STATUS_DISCONNECTED -> updateStatusUi(AetherVpnService.STATUS_DISCONNECTED)
                 }
             }
         }
@@ -104,7 +104,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun syncState() {
-        when (AetherVpnService.currentStatus) {
         updateStatusUi(AetherVpnService.currentStatus)
     }
 
@@ -162,12 +161,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startVpnService() {
-        showConnecting()
+        updateStatusUi(AetherVpnService.STATUS_CONNECTING)
         ContextCompat.startForegroundService(this, Intent(this, AetherVpnService::class.java))
     }
 
     private fun stopVpnService() {
-        showDisconnected()
+        updateStatusUi(AetherVpnService.STATUS_DISCONNECTED)
         startService(Intent(this, AetherVpnService::class.java).apply { action = "STOP_VPN" })
     }
 
