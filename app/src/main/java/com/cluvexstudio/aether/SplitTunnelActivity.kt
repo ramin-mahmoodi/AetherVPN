@@ -63,14 +63,7 @@ class SplitTunnelActivity : AppCompatActivity() {
         topBar.addView(titleText)
         root.addView(topBar)
 
-        // Subtitle
-        val subtitle = TextView(this).apply {
-            text = "تیک بزنید تا اون اپ از VPN رد نشه"
-            textSize = 13f
-            setTextColor(getColor(R.color.text_muted))
-            setPadding(16.dp, 12.dp, 16.dp, 4.dp)
-        }
-        root.addView(subtitle)
+        // Removed subtitle
 
         // Search bar with app theme
         searchView = SearchView(this).apply {
