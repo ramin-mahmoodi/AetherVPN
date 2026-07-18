@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Aether" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    </style>
+
+    <style name="Theme.Aether" parent="Base.Theme.Aether">
+        <item name="android:windowBackground">@color/bg_main</item>
+        <item name="android:textColorPrimary">@color/text_main</item>
+        <item name="android:textColorSecondary">@color/text_muted</item>
+        
+        <item name="colorPrimary">@color/status_connected</item>
+        <item name="colorAccent">@color/primary_orange</item>
+        <!-- The color of the active switches -->
+        <item name="colorControlActivated">@color/status_connected</item>
+        
+        <item name="android:statusBarColor">@color/bg_main</item>
+        <item name="android:navigationBarColor">@color/bg_main</item>
+    </style>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="protocol_entries">
+        <item>Auto (recommended)</item>
+        <item>MASQUE</item>
+        <item>WireGuard</item>
+        <item>WARP-in-WARP (gool)</item>
+    </string-array>
+    <string-array name="protocol_values">
+        <item>auto</item>
+        <item>masque</item>
+        <item>wireguard</item>
+        <item>gool</item>
+    </string-array>
+
+    <string-array name="scan_mode_entries">
+        <item>Balanced</item>
+        <item>Turbo</item>
+        <item>Thorough</item>
+        <item>Stealth</item>
+    </string-array>
+    <string-array name="scan_mode_values">
+        <item>balanced</item>
+        <item>turbo</item>
+        <item>thorough</item>
+        <item>stealth</item>
+    </string-array>
+
+    <string-array name="ip_version_entries">
+        <item>IPv4</item>
+        <item>IPv6</item>
+        <item>Dual Stack</item>
+    </string-array>
+    <string-array name="ip_version_values">
+        <item>v4</item>
+        <item>v6</item>
+        <item>dual</item>
+    </string-array>
+</resources>

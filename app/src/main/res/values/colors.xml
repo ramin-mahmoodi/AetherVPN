@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Premium Warm Dark Theme -->
+    <color name="bg_main">#121212</color>
+    <color name="surface_dark">#1A1A1C</color>
+    <color name="surface_light">#27272A</color>
+
+    <!-- Accents -->
+    <color name="primary_orange">#FF6D00</color>
+    <color name="status_connected">#00E676</color>
+    <color name="color_download">#FF6D00</color>
+    <color name="color_upload">#FF6D00</color>
+    
+    <!-- Text colors -->
+    <color name="text_main">#FFFFFF</color>
+    <color name="text_muted">#A1A1AA</color>
+    <color name="text_dark">#52525B</color>
+    
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+</resources>
