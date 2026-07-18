@@ -108,8 +108,17 @@ class AetherVpnService : VpnService() {
 
         thread {
             startAetherCore()
-            Thread.sleep(1000)
-            setupVpn()
+            
+            // Wait for Aether core to establish connection and start SOCKS proxy
+            var waited = 0
+            while (isRunning && currentStatus != STATUS_CONNECTED && waited < 150) { // Max 15 seconds
+                Thread.sleep(100)
+                waited++
+            }
+            
+            if (isRunning) {
+                setupVpn()
+            }
         }
 
         return START_STICKY
