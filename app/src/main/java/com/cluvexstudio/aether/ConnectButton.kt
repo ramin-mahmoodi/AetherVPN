@@ -41,8 +41,7 @@ class ConnectButton @JvmOverloads constructor(
     private val colorBg = Color.parseColor("#1A1A1C")
 
     init {
-        isClickable = true
-        isFocusable = true
+        // Removed clickable/focusable so parent FrameLayout can intercept clicks
     }
 
     private fun dp(value: Int): Float = value * resources.displayMetrics.density
