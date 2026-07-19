@@ -233,53 +233,45 @@ class AetherVpnService : VpnService() {
 
         startTun2Socks(fd)
 
-        // Actively validate connection before reporting Connected
+        broadcastStatus(STATUS_CONNECTED)
+        broadcastLog("[VPN] Tunnel connected and routing traffic.")
+
+        // Watchdog loop (runs completely in background)
         thread {
-            var isActuallyConnected = false
-            for (i in 1..20) { // Try for 20 seconds
-                if (!isRunning) break
-                try {
-                    val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
-                    val socket = java.net.Socket(proxy)
-                    val dest = java.net.InetSocketAddress("1.1.1.1", 80)
-                    socket.connect(dest, 3000)
-                    socket.close()
-                    
-                    broadcastStatus(STATUS_CONNECTED)
-                    broadcastLog("[VPN] Active validation successful! Connection is truly established.")
-                    isActuallyConnected = true
-                    break
-                } catch (e: Exception) {
-                    // Ignore and retry
-                }
-                Thread.sleep(1000)
-            }
-            
-            if (!isActuallyConnected && isRunning) {
-                broadcastLog("[VPN] ERROR: Connection validation failed. Triggering reconnect...")
-                triggerReconnect()
-                return@thread
-            }
-            
-            // Watchdog loop
             var failedPings = 0
             while (isRunning && currentStatus == STATUS_CONNECTED) {
-                Thread.sleep(10000) // Check every 10 seconds
+                Thread.sleep(15000) // Check every 15 seconds
                 if (!isRunning || currentStatus != STATUS_CONNECTED) break
                 
-                try {
-                    val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
-                    val socket = java.net.Socket(proxy)
-                    val dest = java.net.InetSocketAddress("1.1.1.1", 80)
-                    socket.connect(dest, 3000)
-                    socket.close()
+                var pingSuccess = false
+                val pingThread = thread {
+                    try {
+                        val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
+                        val socket = java.net.Socket(proxy)
+                        val dest = java.net.InetSocketAddress.createUnresolved("cloudflare.com", 443)
+                        socket.connect(dest, 5000)
+                        socket.close()
+                        pingSuccess = true
+                    } catch (e: Exception) {
+                        pingSuccess = false
+                    }
+                }
+                pingThread.join(8000) // strict timeout
+                if (pingThread.isAlive) pingThread.interrupt()
+                
+                if (pingSuccess) {
                     failedPings = 0 // Reset on success
-                } catch (e: Exception) {
+                } else {
                     failedPings++
                     broadcastLog("[VPN] Watchdog: Ping failed ($failedPings/3)")
                     if (failedPings >= 3) {
-                        broadcastLog("[VPN] ERROR: Internet connection died. Triggering reconnect...")
-                        triggerReconnect()
+                        val prefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
+                        if (prefs.getBoolean("quick_reconnect", true)) {
+                            broadcastLog("[VPN] ERROR: Internet connection died. Triggering reconnect...")
+                            triggerReconnect()
+                        } else {
+                            broadcastLog("[VPN] ERROR: Internet connection died. (Auto-Reconnect disabled)")
+                        }
                         break
                     }
                 }
