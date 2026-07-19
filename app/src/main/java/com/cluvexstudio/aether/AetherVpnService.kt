@@ -233,11 +233,50 @@ class AetherVpnService : VpnService() {
 
         startTun2Socks(fd)
 
-        broadcastStatus(STATUS_CONNECTED)
-        broadcastLog("[VPN] Tunnel connected and routing traffic.")
-
-        // Watchdog loop (runs completely in background)
+        // Actively validate connection before reporting Connected
         thread {
+            var isActuallyConnected = false
+            for (i in 1..15) { // Try for 15 seconds max
+                if (!isRunning) break
+                var pingSuccess = false
+                val pingThread = thread {
+                    try {
+                        val proxy = java.net.Proxy(java.net.Proxy.Type.SOCKS, java.net.InetSocketAddress("127.0.0.1", 1819))
+                        val socket = java.net.Socket(proxy)
+                        val dest = java.net.InetSocketAddress.createUnresolved("cloudflare.com", 443)
+                        socket.connect(dest, 3000)
+                        socket.close()
+                        pingSuccess = true
+                    } catch (e: Exception) {
+                        pingSuccess = false
+                    }
+                }
+                pingThread.join(4000) // strict timeout
+                if (pingThread.isAlive) pingThread.interrupt()
+                
+                if (pingSuccess) {
+                    isActuallyConnected = true
+                    break
+                }
+                Thread.sleep(1000)
+            }
+            
+            if (isActuallyConnected && isRunning) {
+                broadcastStatus(STATUS_CONNECTED)
+                broadcastLog("[VPN] Active validation successful! Connection is truly established.")
+            } else if (isRunning) {
+                val prefs = getSharedPreferences("aether_prefs", Context.MODE_PRIVATE)
+                if (prefs.getBoolean("quick_reconnect", true)) {
+                    broadcastLog("[VPN] ERROR: Connection validation failed. Triggering reconnect...")
+                    triggerReconnect()
+                } else {
+                    broadcastLog("[VPN] ERROR: Connection validation failed.")
+                    stopVpnGracefully()
+                }
+                return@thread
+            }
+
+            // Watchdog loop (runs completely in background)
             var failedPings = 0
             while (isRunning && currentStatus == STATUS_CONNECTED) {
                 Thread.sleep(15000) // Check every 15 seconds
